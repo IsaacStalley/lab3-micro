@@ -24,14 +24,25 @@ float reverse_TF(int port){
 
 
 float get_max_voltage(int port){
-  float max_voltage = 0;
-  float voltage = reverse_TF(port);
+  float max_voltage = abs(reverse_TF(port));
+  float voltage = abs(reverse_TF(port));
+  int counter = 0;
 
-  while (abs(voltage) > max_voltage) {
-    max_voltage = abs(voltage);
-    voltage = reverse_TF(port);
+  while(1){
+    if (voltage > max_voltage){
+      while (1){
+        max_voltage = voltage;
+        voltage = abs(reverse_TF(port));
+        if (voltage <= max_voltage){
+          return max_voltage;
+        }
+      }
+    }
+    else {
+      max_voltage = voltage;
+      voltage = abs(reverse_TF(port));
+    }
   }
-  return max_voltage;
 }
 
 void loop() {
@@ -46,56 +57,58 @@ void loop() {
 
   if (switch_DC) {
     lcd.setCursor(0, 0);
-    lcd.print("DC Voltages:");
+    lcd.print("DC Voltages");
+    lcd.setCursor(0, 1);
+    lcd.print("------------");
   
   }
 
   else {
     float max_voltage = get_max_voltage(A0);
-    if (abs(max_voltage - global_max_voltageA0) > 0.5){
+    if (max_voltage > global_max_voltageA0 || global_max_voltageA0 - max_voltage > 1){
       global_max_voltageA0 = max_voltage;
     }
+
     voltageA0 = global_max_voltageA0 / sqrt(2);
 
     max_voltage = get_max_voltage(A1);
-    if (abs(max_voltage - global_max_voltageA1) > 0.5){
+    if (max_voltage > global_max_voltageA1 || global_max_voltageA1 - max_voltage > 1){
       global_max_voltageA1 = max_voltage;
     }
     voltageA1 = global_max_voltageA1 / sqrt(2);
   
     max_voltage = get_max_voltage(A2);
-    if (abs(max_voltage - global_max_voltageA2) > 0.5){
+    if (max_voltage > global_max_voltageA2 || global_max_voltageA2 - max_voltage > 1){
       global_max_voltageA2 = max_voltage;
     }
     voltageA2 = global_max_voltageA2 / sqrt(2);
 
     max_voltage = get_max_voltage(A3);
-    if (abs(max_voltage - global_max_voltageA3) > 0.5){
+    if (max_voltage > global_max_voltageA3 || global_max_voltageA3 - max_voltage > 1){
       global_max_voltageA3 = max_voltage;
     }
     voltageA3 = global_max_voltageA3 / sqrt(2);
 
     lcd.setCursor(0, 0);
-    lcd.print("AC Voltages:");
+    lcd.print("AC Voltages");
+    lcd.setCursor(0, 1);
+    lcd.print("------------");
   }
 
   // Write a piece of text on the first line...
-  lcd.setCursor(0, 1);
+  lcd.setCursor(0, 2);
   lcd.print("V1: ");
   lcd.print(voltageA3, 2);
 
-  lcd.setCursor(0, 2);
+  lcd.setCursor(0, 3);
   lcd.print("V2: ");
   lcd.print(voltageA2, 2);
 
-  lcd.setCursor(0, 3);
+  lcd.setCursor(0, 4);
   lcd.print("V3: ");
   lcd.print(voltageA1, 2);
 
-  lcd.setCursor(0, 4);
+  lcd.setCursor(0, 5);
   lcd.print("V4: ");
   lcd.print(voltageA0, 2);
-
-  delay(100);
-
 }
